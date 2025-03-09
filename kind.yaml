@@ -1,0 +1,32 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+  extraPortMappings:
+  - containerPort: 31235
+    hostPort: 31235
+  - containerPort: 31613
+    hostPort: 31613
+- role: worker
+- role: worker
+networking:
+  disableDefaultCNI: true
+
+---
+# kind: Cluster
+# name: clab-bgp-cplane-devel
+# apiVersion: kind.x-k8s.io/v1alpha4
+# networking:
+#   disableDefaultCNI: true
+# nodes:
+#   - role: control-plane
+#     kubeadmConfigPatches:
+#       - |
+#         kind: InitConfiguration
+#         nodeRegistration:
+#           kubeletExtraArgs:
+#             node-ip: "172.0.0.2"
+# containerdConfigPatches:
+#   - |-
+#     [plugins."io.containerd.grpc.v1.cri".registry.mirrors."localhost:5000"]
+#       endpoint = ["http://kind-registry:5000"]
