@@ -98,6 +98,7 @@ or ---------------------------------------------------
       --namespace kube-system \
       --set ipam.mode=kubernetes \
       --set kubeProxyReplacement=true \
+      --set gatewayAPI.enabled=true \
       --set routingMode=tunnel \
       --set bgpControlPlane.enabled=true \
       --set bpf.masquerade=false \
@@ -127,6 +128,13 @@ or ---------------------------------------------------
 
  kubectl patch svc cilium-ingress -n kube-system -p '{"spec":{"ports":[{"name":"http","nodePort":31235,"port":80,"protocol":"TCP"},{"na
 me":"https","loadBalancer":31613,"port":443,"protocol":"TCP"}]}}'
+
+
+helm repo add cnpg https://cloudnative-pg.github.io/charts
+helm install --install cnpg \
+  --namespace cnpg-system \
+  --create-namespace \
+  cnpg/cloudnative-pg
 
 
 pkg2/ is for ingress stuff
