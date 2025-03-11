@@ -96,7 +96,10 @@ or ---------------------------------------------------
 
     helm install cilium cilium/cilium --version 1.17.1 \
       --namespace kube-system \
+      --set cluster.name=kind \
+      --set cluster.id=1 \
       --set ipam.mode=kubernetes \
+      --set ipv4NativeRoutingCIDR="10.1.0.0/16" \
       --set kubeProxyReplacement=true \
       --set gatewayAPI.enabled=true \
       --set routingMode=tunnel \
