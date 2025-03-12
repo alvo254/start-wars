@@ -94,12 +94,11 @@ or ---------------------------------------------------
     ├── test-xwing-access.sh          # Script to test xwing access
     └── cleanup.sh                    # Script to remove all resources
 
+    --set ipv4NativeRoutingCIDR="10.1.0.0/16" \
+
     helm install cilium cilium/cilium --version 1.17.1 \
       --namespace kube-system \
-      --set cluster.name=kind \
-      --set cluster.id=1 \
       --set ipam.mode=kubernetes \
-      --set ipv4NativeRoutingCIDR="10.1.0.0/16" \
       --set kubeProxyReplacement=true \
       --set gatewayAPI.enabled=true \
       --set routingMode=tunnel \
@@ -126,6 +125,14 @@ or ---------------------------------------------------
       --set tetragon.resources.requests.memory=100Mi \
       --set tetragon.resources.limits.cpu=500m \
       --set tetragon.resources.limits.memory=500Mi
+
+
+
+       helm upgrade cilium cilium/cilium --version 1.17.1 \
+      --namespace kube-system \
+      --reuse-values \
+      --set cluster.name=kind \
+      --set cluster.id=1 \
 
  kubectl -n kube-system exec ds/cilium -- cilium config | grep ingress
 
