@@ -103,7 +103,6 @@ or ---------------------------------------------------
       --set gatewayAPI.enabled=true \
       --set routingMode=tunnel \
       --set bgpControlPlane.enabled=true \
-      --set bpf.masquerade=false \
       --set prometheus.enabled=true \
       --set operator.prometheus.enabled=true \
       --set hubble.enabled=true \
@@ -111,6 +110,8 @@ or ---------------------------------------------------
       --set hubble.relay.enabled=true \
       --set hubble.ui.enabled=true \
       --set nodePort.enabled=true \
+      --set authentication.mutual.spire.enabled=true \
+      --set authentication.mutual.spire.install.enabled=true \
       --set ingressController.enabled=true \
       --set ingressController.default=true \
       --set ingressController.service.type=NodePort \
@@ -128,11 +129,35 @@ or ---------------------------------------------------
 
 
 
-       helm upgrade cilium cilium/cilium --version 1.17.1 \
+      helm upgrade cilium cilium/cilium --version 1.17.1 \
       --namespace kube-system \
       --reuse-values \
-      --set cluster.name=kind \
+      --set cluster.name=kind-kind \
       --set cluster.id=1 \
+      --set clustermesh.useAPIServer=true \
+      --set clustermesh.enableEndpointSync=true \
+      --set clustermesh.enableMCSAPI=true \
+
+
+
+      helm upgrade cilium cilium/cilium --version 1.17.1 \
+      --namespace kube-system \
+      --reuse-values \
+      --set cluster.name=kind-koornchart \
+      --set cluster.id=2 \
+      --set clustermesh.useAPIServer=true \
+      --set clustermesh.enableEndpointSync=true \
+      --set clustermesh.enableMCSAPI=true \
+
+
+      Why?
+SPIRE uses the cluster name defined in the Kubernetes API server configuration.
+kubectl config view --minify -o jsonpath='{.clusters[0].name}' shows the actual name Kubernetes is using.
+KIND's internal name (kind get clusters) is just a label for KIND itself and may not always match what Kubernetes expects.
+💡 Best Practice
+Always use kubectl config view --minify -o jsonpath='{.clusters[0].name}' to check the correct cluster name for SPIRE.
+In your case, use "kind-kind" instead of "kind" in SPIRE.
+
 
  kubectl -n kube-system exec ds/cilium -- cilium config | grep ingress
 
