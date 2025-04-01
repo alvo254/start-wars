@@ -1,0 +1,73 @@
+kind: Cluster
+name: kind
+apiVersion: kind.x-k8s.io/v1alpha4
+networking:
+  disableDefaultCNI: false   
+  podSubnet: "10.1.0.0/16"
+nodes:
+  - role: control-plane
+    extraMounts:
+      # Mount the real Kata shim binary into the node
+      - hostPath: /snap/kata-containers/2446/usr/bin/containerd-shim-kata-v2
+        containerPath: /usr/bin/containerd-shim-kata-v2
+      # Mount the Kata configuration file into the node
+      - hostPath: /etc/kata/configuration.toml
+        containerPath: /etc/kata/configuration.toml
+    kubeadmConfigPatches:
+      - |
+        kind: InitConfiguration
+        nodeRegistration:
+          kubeletExtraArgs:
+            node-labels: "rack=rack0"
+  - role: worker
+    extraMounts:
+      - hostPath: /snap/kata-containers/2446/usr/bin/containerd-shim-kata-v2
+        containerPath: /usr/bin/containerd-shim-kata-v2
+      - hostPath: /etc/kata/configuration.toml
+        containerPath: /etc/kata/configuration.toml
+    kubeadmConfigPatches:
+      - |
+        kind: JoinConfiguration
+        nodeRegistration:
+          kubeletExtraArgs:
+            node-labels: "rack=rack0"
+  - role: worker
+    extraMounts:
+      - hostPath: /snap/kata-containers/2446/usr/bin/containerd-shim-kata-v2
+        containerPath: /usr/bin/containerd-shim-kata-v2
+      - hostPath: /etc/kata/configuration.toml
+        containerPath: /etc/kata/configuration.toml
+    kubeadmConfigPatches:
+      - |
+        kind: JoinConfiguration
+        nodeRegistration:
+          kubeletExtraArgs:
+            node-labels: "rack=rack1"
+  - role: worker
+    extraMounts:
+      - hostPath: /snap/kata-containers/2446/usr/bin/containerd-shim-kata-v2
+        containerPath: /usr/bin/containerd-shim-kata-v2
+      - hostPath: /etc/kata/configuration.toml
+        containerPath: /etc/kata/configuration.toml
+    kubeadmConfigPatches:
+      - |
+        kind: JoinConfiguration
+        nodeRegistration:
+          kubeletExtraArgs:
+            node-labels: "rack=rack1"
+containerdConfigPatches:
+  - |-
+    [plugins."io.containerd.grpc.v1.cri".registry.mirrors."localhost:5000"]
+      endpoint = ["http://kind-registry:5000"]
+  # Configure the default runtime (runc)
+  - |-
+    [plugins."io.containerd.grpc.v1.cri".containerd.default_runtime]
+      runtime_type = "io.containerd.runc.v2"
+  # Configure the Kata runtime
+  - |-
+    [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.kata]
+      runtime_type = "io.containerd.kata.v2"
+      privileged_without_host_devices = true
+      [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.kata.options]
+        ConfigPath = "/etc/kata/configuration.toml"
+        BinaryName = "/usr/bin/containerd-shim-kata-v2"

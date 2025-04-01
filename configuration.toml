@@ -70,7 +70,7 @@ version = 2
     stream_idle_timeout = "4h0m0s"
     stream_server_address = "127.0.0.1"
     stream_server_port = "0"
-    systemd_cgroup = false
+    systemd_cgroup = true
     tolerate_missing_hugetlb_controller = true
     unset_seccomp_profile = ""
 
@@ -146,7 +146,7 @@ version = 2
           privileged_without_host_devices = true
           [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.kata.options]
             ConfigPath = "/etc/kata/configuration.toml"
-            BinaryName = "/snap/bin/kata-containers.runtime"
+            BinaryName = "/snap/bin/kata-containers.runtime"   /usr/bin/containerd-shim-kata-v2
 
       [plugins."io.containerd.grpc.v1.cri".containerd.untrusted_workload_runtime]
         base_runtime_spec = ""
